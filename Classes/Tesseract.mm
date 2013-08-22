@@ -12,6 +12,7 @@
 #import "baseapi.h"
 #import "environ.h"
 #import "pix.h"
+#import "TWord.h"
 
 namespace tesseract {
     class TessBaseAPI;
@@ -153,6 +154,32 @@ namespace tesseract {
     CGColorSpaceRelease(colorSpace);
     
     _tesseract->SetImage((const unsigned char *) _pixels, width, height, sizeof(uint32_t), width * sizeof(uint32_t));
+}
+
+- (NSArray*)getWords
+{
+	NSMutableArray* output = [[NSMutableArray alloc] init];
+	tesseract::ResultIterator* ri = _tesseract->GetIterator();
+	tesseract::PageIteratorLevel level = tesseract::RIL_WORD;
+	if (ri != 0)
+	{
+		do {
+			const char* word = ri->GetUTF8Text(level);
+			float conf = ri->Confidence(level);
+			int x1, y1, x2, y2;
+			ri->BoundingBox(level, &x1, &y1, &x2, &y2);
+			
+			TWord* myWord = [[TWord alloc] init];
+			myWord.text = [NSString stringWithUTF8String:word];
+			myWord.confidence = conf;
+			myWord.box = CGRectMake(x1 / 2, y1 / 2, x2 / 2 - x1 / 2, y2 / 2 - y1 / 2);
+			[output addObject:myWord];
+			
+			//NSLog(@"word: %s, conf=%.2f, BoundingBox: %d,%d,%d,%d", word, conf, x1, y1, x2, y2);
+			delete[] word;
+		} while (ri->Next(level));
+	}
+	return output;
 }
 
 @end

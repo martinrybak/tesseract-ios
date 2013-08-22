@@ -24,5 +24,6 @@
 - (BOOL)recognize;
 - (NSString *)recognizedText;
 - (void)clear;
+- (NSArray*)getWords;
 
 @end
