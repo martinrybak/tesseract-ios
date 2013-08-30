@@ -158,28 +158,73 @@ namespace tesseract {
 
 - (NSArray*)getWords
 {
-	NSMutableArray* output = [[NSMutableArray alloc] init];
+	return [self getText:tesseract::RIL_WORD];
+}
+
+- (NSArray*)getLines
+{
+	return [self getText:tesseract::RIL_TEXTLINE];
+}
+
+- (NSArray*)getLinesAndWords
+{
+    NSArray* lines = [self getLines];
+    NSArray* words = [self getWords];
+    int i = 0;
+    NSMutableArray* tempWords = [[NSMutableArray alloc] init];
+    NSMutableArray* tempText = [[NSMutableArray alloc] init];
+      
+    for (int j = 0; j < words.count; j++)
+    {
+        TLine* line = lines[i];
+        TWord* word = words[j];
+        
+        [tempWords addObject:word];
+        [tempText addObject:word.text];
+        
+        NSString* currentLine = [line.text stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+        NSString* tempLine = [tempText componentsJoinedByString: @" "];
+        
+        if ([tempLine isEqualToString:currentLine])
+        {
+            [line.words addObjectsFromArray:tempWords];
+            [tempWords removeAllObjects];
+            [tempText removeAllObjects];
+            i++;
+        }
+    }
+    return lines;
+}
+
+- (NSArray*)getText:(tesseract::PageIteratorLevel)iteratorLevel
+{
+    NSMutableArray* output = [[NSMutableArray alloc] init];
 	tesseract::ResultIterator* ri = _tesseract->GetIterator();
-	tesseract::PageIteratorLevel level = tesseract::RIL_WORD;
 	if (ri != 0)
 	{
 		do {
-			const char* word = ri->GetUTF8Text(level);
-			float conf = ri->Confidence(level);
+			const char* word = ri->GetUTF8Text(iteratorLevel);
+			float conf = ri->Confidence(iteratorLevel);
 			int x1, y1, x2, y2;
-			ri->BoundingBox(level, &x1, &y1, &x2, &y2);
+			ri->BoundingBox(iteratorLevel, &x1, &y1, &x2, &y2);
 			
-			TWord* myWord = [[TWord alloc] init];
-			myWord.text = [NSString stringWithUTF8String:word];
-			myWord.confidence = conf;
-			myWord.box = CGRectMake(x1 / 2, y1 / 2, x2 / 2 - x1 / 2, y2 / 2 - y1 / 2);
-			[output addObject:myWord];
+			TText* text = [[TLine alloc] init];
+			text.text = [NSString stringWithUTF8String:word];
+			text.confidence = conf;
+			text.box = CGRectMake(x1 / 2, y1 / 2, x2 / 2 - x1 / 2, y2 / 2 - y1 / 2);
+			[output addObject:text];
 			
-			//NSLog(@"word: %s, conf=%.2f, BoundingBox: %d,%d,%d,%d", word, conf, x1, y1, x2, y2);
 			delete[] word;
-		} while (ri->Next(level));
+		} while (ri->Next(iteratorLevel));
 	}
 	return output;
+}
+
+- (BOOL)string:(NSString*)a contains:(NSString*)b
+{
+    NSRange range = [a rangeOfString:b];
+    BOOL found = (range.location != NSNotFound);
+    return found;
 }
 
 @end

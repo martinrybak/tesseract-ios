@@ -8,8 +8,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "TText.h"
+#import "TWord.h"
+#import "TLine.h"
 
-@interface Tesseract : NSObject {    
+@interface Tesseract : NSObject {
     NSString* _dataPath;
     NSString* _language;
     NSMutableDictionary* _variables;
@@ -25,5 +28,7 @@
 - (NSString *)recognizedText;
 - (void)clear;
 - (NSArray*)getWords;
+- (NSArray*)getLines;
+- (NSArray*)getLinesAndWords;
 
 @end
