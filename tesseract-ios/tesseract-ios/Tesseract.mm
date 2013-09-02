@@ -210,7 +210,7 @@ namespace tesseract {
 			int x1, y1, x2, y2;
 			ri->BoundingBox(iteratorLevel, &x1, &y1, &x2, &y2);
 			
-			TText* text = [[TLine alloc] init];
+			TText* text = [[TText alloc] init];
             text.identifier = identifier;
 			text.text = [NSString stringWithUTF8String:word];
 			text.confidence = conf;
