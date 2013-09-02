@@ -178,6 +178,7 @@ namespace tesseract {
     {
         TLine* line = lines[i];
         TWord* word = words[j];
+        word.line = line;
         
         [tempWords addObject:word];
         [tempText addObject:word.text];

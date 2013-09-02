@@ -8,6 +8,10 @@
 
 #import "TText.h"
 
+@class TLine;
+
 @interface TWord : TText
+
+@property (weak, nonatomic) TLine* line;
 
 @end
