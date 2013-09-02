@@ -177,7 +177,7 @@ namespace tesseract {
     for (int j = 0; j < words.count; j++)
     {
         TLine* line = lines[i];
-        TWord* word = words[j];
+        TWord* word = [self convertTextToWord:words[j]];
         word.line = line;
         
         [tempWords addObject:word];
@@ -222,6 +222,16 @@ namespace tesseract {
 		} while (ri->Next(iteratorLevel));
 	}
 	return output;
+}
+
+- (TWord*)convertTextToWord:(TText*)text
+{
+    TWord* word = [[TWord alloc] init];
+    word.identifier = text.identifier;
+    word.text = text.text;
+    word.confidence = text.confidence;
+    word.box = text.box;
+    return word;
 }
 
 - (BOOL)string:(NSString*)a contains:(NSString*)b
