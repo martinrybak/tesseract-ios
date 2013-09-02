@@ -200,6 +200,7 @@ namespace tesseract {
 {
     NSMutableArray* output = [[NSMutableArray alloc] init];
 	tesseract::ResultIterator* ri = _tesseract->GetIterator();
+    int identifier = 0;
 	if (ri != 0)
 	{
 		do {
@@ -209,10 +210,12 @@ namespace tesseract {
 			ri->BoundingBox(iteratorLevel, &x1, &y1, &x2, &y2);
 			
 			TText* text = [[TLine alloc] init];
+            text.identifier = identifier;
 			text.text = [NSString stringWithUTF8String:word];
 			text.confidence = conf;
 			text.box = CGRectMake(x1 / 2, y1 / 2, x2 / 2 - x1 / 2, y2 / 2 - y1 / 2);
 			[output addObject:text];
+            identifier++;
 			
 			delete[] word;
 		} while (ri->Next(iteratorLevel));

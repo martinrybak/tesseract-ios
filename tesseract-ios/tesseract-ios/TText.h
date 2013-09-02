@@ -10,6 +10,7 @@
 
 @interface TText : NSObject
 
+@property (assign, nonatomic) int identifier;
 @property (strong, nonatomic) NSString* text;
 @property (assign, nonatomic) float confidence;
 @property (assign, nonatomic) CGRect box;
